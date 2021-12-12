@@ -2,7 +2,7 @@
 *.class
 build
 
-application.properties
+#application.properties
 
 # Log file
 *.log
