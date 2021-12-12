@@ -1,7 +1,11 @@
 package com.recipe.indianrecipe.producer;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -18,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class LibraryEventProducer {
+	
+	String topic = "library-events";
 	
 	@Autowired
 	KafkaTemplate<Integer, String> kafkaTemplates;
@@ -46,6 +52,35 @@ public class LibraryEventProducer {
 		});
 	}
 	
+	public void sendLibraryEvent2(LibraryEvent libraryEvent) throws JsonProcessingException {
+		Integer key = libraryEvent.getLibraryEvenId();
+		String value = objectMapper.writeValueAsString(libraryEvent);
+		
+		ProducerRecord<Integer, String> producerRecord = buildProducerRecord(key, value, topic);
+		
+		ListenableFuture<SendResult<Integer,String>> listenableFuture = kafkaTemplates.send(producerRecord);
+		listenableFuture.addCallback(new ListenableFutureCallback<SendResult<Integer,String>>(){
+
+			@Override
+			public void onSuccess(SendResult<Integer, String> result) {
+				handleSuccess(key, value, result);
+				
+			}
+
+			@Override
+			public void onFailure(Throwable ex) {
+				handleFailure(key, value, ex);
+				
+			}
+			
+		});
+	}
+	
+	private ProducerRecord<Integer, String> buildProducerRecord(Integer key, String value, String topic2) {
+		List<Header> recordHeaders = List.of(new RecordHeader("event-source", "scanner".getBytes()));
+		return new ProducerRecord<Integer, String>(topic, null, key, value, recordHeaders);
+	}
+
 	public SendResult<Integer,String> sendLibraryEventSynchronous(LibraryEvent libraryEvent) throws ExecutionException,InterruptedException, JsonProcessingException {
 		Integer key = libraryEvent.getLibraryEvenId();
 		String value = objectMapper.writeValueAsString(libraryEvent);
