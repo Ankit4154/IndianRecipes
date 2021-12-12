@@ -2,6 +2,8 @@ package com.recipe.indianrecipe.controller;
 
 import java.util.concurrent.ExecutionException;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +26,7 @@ public class LibraryEventsController {
 	LibraryEventProducer libraryEventProducer;
 	
 	@PostMapping("/v1/libraryevent")
-	public ResponseEntity<LibraryEvent> postLibraryEvent(@RequestBody LibraryEvent libraryEvent) throws JsonProcessingException, ExecutionException, InterruptedException{
+	public ResponseEntity<LibraryEvent> postLibraryEvent(@RequestBody @Valid LibraryEvent libraryEvent) throws JsonProcessingException, ExecutionException, InterruptedException{
 		
 		// invoke kafka producer
 		log.info("before send library event");

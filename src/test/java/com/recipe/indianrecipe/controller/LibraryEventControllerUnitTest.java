@@ -50,8 +50,8 @@ public class LibraryEventControllerUnitTest {
 		// when
 	/*	 mockMvc.perform(MockMvcRequestBuilders.post("/v1/libraryevent")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(json)).andExpect();
-				//.andExpect(HttpStatus.CREATED);
+				.content(json))
+				.andExpect(status().isCreated());
 	*/
 		// then
 	}
